@@ -2,12 +2,12 @@ package v1
 
 import (
 	pb "orderService/api"
+	"orderService/pkg/repository"
 	"sync"
 )
 
-type routeGuideServer struct {
+type OrderServiceServer struct {
 	pb.UnimplementedOrderServiceServer
-	savedOrders []*pb.Order // read-only after initialized
-
-	mu sync.Mutex // protect savedOrders
+	OrdersRepository repository.OrderService // read-only after initialized
+	mu               sync.Mutex              // protect savedOrders
 }
