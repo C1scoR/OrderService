@@ -9,7 +9,7 @@ import (
 type OrderRepository interface {
 	Create(ctx context.Context, order models.Order) (string, error)
 	GetByID(ctx context.Context, id string) (models.Order, error)
-	Update(ctx context.Context, id string) error
+	Update(ctx context.Context, order models.Order) error
 	Delete(ctx context.Context, id string) error
 	List(ctx context.Context) ([]models.Order, error)
 }
@@ -32,8 +32,8 @@ func (s *OrderService) GetByID(ctx context.Context, id string) (models.Order, er
 	return s.Repository.GetByID(ctx, id)
 }
 
-func (s *OrderService) Update(ctx context.Context, id string) error {
-	return s.Repository.Update(ctx, id)
+func (s *OrderService) Update(ctx context.Context, order models.Order) error {
+	return s.Repository.Update(ctx, order)
 }
 
 func (s *OrderService) Delete(ctx context.Context, id string) error {
