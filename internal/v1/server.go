@@ -7,6 +7,9 @@ import (
 	"orderService/models"
 	"orderService/pkg/repository"
 	"sync"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 /*
@@ -61,7 +64,7 @@ message GetOrderResponse {
 func (s *OrderServiceServer) GetOrder(ctx context.Context, orderRequest *pb.GetOrderRequest) (*pb.GetOrderResponse, error) {
 	order, err := s.OrdersRepository.GetByID(ctx, orderRequest.GetId())
 	if err != nil {
-		return nil, fmt.Errorf("GetOrder/GetByID error getting an order: %v", err)
+		return nil, status.Errorf(codes.NotFound, "GetOrder/GetByID error getting an order: %v", err)
 	}
 	responseOrder := pb.Order{
 		Id:       order.Id,
@@ -92,7 +95,7 @@ func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrde
 	}
 	err := s.OrdersRepository.Update(ctx, order)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateOrder/Update error updating an order: %v", err)
+		return nil, status.Errorf(codes.NotFound, "UpdateOrder/Update error updating an order: %v", err)
 	}
 
 	return &pb.UpdateOrderResponse{
