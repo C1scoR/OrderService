@@ -10,10 +10,8 @@ import (
 type Config struct {
 	Environment string `env:"ENV" env-default:"development"`
 
-	Port    int           `env:"PORT" env-default:"8080"`
+	Port    int           `env:"PORT" env-default:"50051"`
 	Timeout time.Duration `env:"HTTP_TIMEOUT" env-default:"30s"`
-
-	DebeziumBaseURL string `env:"DEBEZIUM_BASE_URL" env-default:"http://localhost:8080"`
 }
 
 func ParseConfig(path string) (*Config, error) {
