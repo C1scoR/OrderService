@@ -67,7 +67,7 @@ func (ms *mapStorage) Update(ctx context.Context, order models.Order) error {
 func (ms *mapStorage) Delete(ctx context.Context, id string) error {
 	ms.mu.RLock()
 	_, ok := ms.m[id]
-	ms.mu.Unlock()
+	ms.mu.RUnlock()
 	if !ok {
 		return fmt.Errorf("Delete: order with id %s not found", id)
 	}

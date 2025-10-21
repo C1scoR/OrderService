@@ -106,6 +106,16 @@ func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrde
 		},
 	}, nil
 }
+
+/*
+	message DeleteOrderRequest {
+	  string id = 1;
+	}
+
+	message DeleteOrderResponse {
+	  bool success = 1;
+	}
+*/
 func (s *OrderServiceServer) DeleteOrder(ctx context.Context, dor *pb.DeleteOrderRequest) (*pb.DeleteOrderResponse, error) {
 	err := s.OrdersRepository.Delete(ctx, dor.GetId())
 	if err != nil {
