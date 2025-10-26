@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -14,12 +15,14 @@ type Config struct {
 	Timeout time.Duration `env:"HTTP_TIMEOUT" env-default:"30s"`
 }
 
-func ParseConfig(path string) (*Config, error) {
+// ParseConfig загружает переменные в окружение и возвращает экземпляр структуры Config
+func ParseConfig() (*Config, error) {
+	//Сначала выгружаем все переменные из .env файла в окружение
+	_ = godotenv.Load(".env")
 	cfg := &Config{}
-
-	if err := cleanenv.ReadConfig(path, cfg); err != nil {
+	//читаем эти переменные из окружения, и ими же заполняем экземпляр конфига
+	if err := cleanenv.ReadEnv(cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
-
 	return cfg, nil
 }
