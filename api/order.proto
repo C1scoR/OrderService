@@ -2,15 +2,50 @@ syntax = "proto3";
 
 option go_package = "pkg/api/test";
 
+import "google/api/annotations.proto";
 
 package api;
 
+/*
+Proto generation command:
+  protoc -I ./api     --go_out ./api --go_opt paths=source_relative \
+  --go-grpc_out ./api --go-grpc_opt paths=source_relative  \
+  --grpc-gateway_out ./api --grpc-gateway_opt paths=source_relative \
+  ./api/order.proto 
+
+  Note:
+  Adding http.proto and annotations.proto files in google/api directory is compulsory to provide
+  code execution. These files ensure "understanding" my proto file (order.proto) about how to process http request 
+  i.e. this is special type of contract for gRPC-gateway.
+*/
 service OrderService {
-  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
-  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
-  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
-  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
-  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
+    option (google.api.http) = {
+      post: "/v1/create"
+      body: "*"
+    };
+}
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse){
+    option (google.api.http) = {
+      get: "/v1/get/{id}"
+    };
+  }
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse){
+    option (google.api.http) = {
+      patch: "/v1/update/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse) {
+    option (google.api.http) = {
+      delete: "/v1/delete/{id}"
+    };
+  }
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse) {
+    option (google.api.http) = {
+      get: "/v1/list"
+    };
+  }
 }
 
 message Order {
@@ -59,3 +94,4 @@ message ListOrdersRequest {}
 message ListOrdersResponse {
   repeated Order orders = 1;
 }
+

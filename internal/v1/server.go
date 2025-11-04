@@ -22,10 +22,20 @@ import (
 		mustEmbedUnimplementedOrderServiceServer()
 	}
 */
+//OrderServiceServer - это структура, которая имеет все методы для реализации интерфейса OrderServiceServer interface;
+//Она позволяет добавить свою реализацию методов для gPRC сервера. Для этого создав её экземпляр через func NewServer()
+//мы регистрируем обработчики (т.е. методы которые содержит эта структура) через функцию .proto файла: RegisterOrderServiceServer()
 type OrderServiceServer struct {
-	pb.UnimplementedOrderServiceServer
-	OrdersRepository repository.OrderService // read-only after initialized
-	mu               sync.Mutex              // protect savedOrders
+	pb.UnimplementedOrderServiceServer                         //inherited example with stubs for OrderServiceServer interface
+	OrdersRepository                   repository.OrderService // read-only after initialized
+	mu                                 sync.Mutex              // protect savedOrders
+}
+
+// NewServer это функция, которая создаёт экземпляр структуры OrderServiceServer.
+// Она принимает экземпляр хранилища repository.OrderService, которое мы будем использоват для хранения заказов.
+func NewServer(OrdersRepository repository.OrderService) *OrderServiceServer {
+	s := &OrderServiceServer{OrdersRepository: OrdersRepository}
+	return s
 }
 
 /*
@@ -138,9 +148,4 @@ func (s *OrderServiceServer) ListOrders(ctx context.Context, lor *pb.ListOrdersR
 		})
 	}
 	return &pb.ListOrdersResponse{Orders: responseOrders}, nil
-}
-
-func NewServer(OrdersRepository repository.OrderService) *OrderServiceServer {
-	s := &OrderServiceServer{OrdersRepository: OrdersRepository}
-	return s
 }

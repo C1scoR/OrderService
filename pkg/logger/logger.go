@@ -2,15 +2,12 @@ package logger
 
 import (
 	"context"
-	"log"
-
-	"go.uber.org/zap"
 )
 
 type Logger interface {
-	Debug(ctx context.Context, msg string, fields ...zap.Field)
-	Info(ctx context.Context, msg string, fields ...zap.Field)
-	Error(ctx context.Context, msg string, fields ...zap.Field)
+	Debug(ctx context.Context, msg string, fields ...any)
+	Info(ctx context.Context, msg string, fields ...any)
+	Error(ctx context.Context, msg string, fields ...any)
 }
 
 const (
@@ -18,47 +15,38 @@ const (
 	loggerTraceIDKey   = "x-trace_id"
 )
 
-type L struct {
-	z *zap.Logger
+type CurrentLogger struct {
+	logger Logger
 }
 
-func NewLogger(env string) Logger {
-	loggerCfg := zap.NewProductionConfig()
-	loggerCfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
-	if env == "dev" {
-		loggerCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+func NewCurrentLogger(adapter Logger) *CurrentLogger {
+	return &CurrentLogger{
+		logger: adapter,
 	}
-	logger, err := loggerCfg.Build()
-	if err != nil {
-		log.Fatalf("failed to create logger: %v", err)
-	}
-	defer logger.Sync()
-
-	lo := L{z: logger}
-	return &lo
 }
 
+func (cl *CurrentLogger) Debug(ctx context.Context, msg string, fields ...any) {
+	cl.logger.Debug(ctx, msg, fields...)
+}
+
+func (cl *CurrentLogger) Info(ctx context.Context, msg string, fields ...any) {
+	cl.logger.Info(ctx, msg, fields...)
+}
+func (cl *CurrentLogger) Error(ctx context.Context, msg string, fields ...any) {
+	cl.logger.Error(ctx, msg, fields...)
+}
+
+// ReuestID получает из контекста id запроса
+func RequestID(ctx context.Context) (string, bool) {
+	id, ok := ctx.Value(loggerRequestIDKey).(string)
+	return id, ok
+}
+
+// WithRequestID Добавляет в контекст ключ запроса и сам id запроса
 func WithRequestID(ctx context.Context, requestID string) context.Context {
 	return context.WithValue(ctx, loggerRequestIDKey, requestID)
 }
 
 func WithTraceID(ctx context.Context, traceID string) context.Context {
 	return context.WithValue(ctx, loggerTraceIDKey, traceID)
-}
-
-func (l *L) Info(ctx context.Context, msg string, fields ...zap.Field) {
-	id := ctx.Value(loggerRequestIDKey).(string)
-	fields = append(fields, zap.String(loggerRequestIDKey, id))
-	l.z.Info(msg, fields...)
-}
-
-func (l *L) Debug(ctx context.Context, msg string, fields ...zap.Field) {
-	id := ctx.Value(loggerRequestIDKey).(string)
-	fields = append(fields, zap.String(loggerRequestIDKey, id))
-	l.z.Debug(msg, fields...)
-}
-func (l *L) Error(ctx context.Context, msg string, fields ...zap.Field) {
-	id := ctx.Value(loggerRequestIDKey).(string)
-	fields = append(fields, zap.String(loggerRequestIDKey, id))
-	l.z.Error(msg, fields...)
 }

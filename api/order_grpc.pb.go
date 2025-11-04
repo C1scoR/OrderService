@@ -29,6 +29,17 @@ const (
 // OrderServiceClient is the client API for OrderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Proto generation command:
+// protoc -I ./api     --go_out ./api --go_opt paths=source_relative \
+// --go-grpc_out ./api --go-grpc_opt paths=source_relative  \
+// --grpc-gateway_out ./api --grpc-gateway_opt paths=source_relative \
+// ./api/order.proto
+//
+// Note:
+// Adding http.proto and annotations.proto files in google/api directory is compulsory to provide
+// code execution. These files ensure "understanding" my proto file (order.proto) about how to process http request
+// i.e. this is special type of contract for gRPC-gateway.
 type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
@@ -98,6 +109,17 @@ func (c *orderServiceClient) ListOrders(ctx context.Context, in *ListOrdersReque
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
+//
+// Proto generation command:
+// protoc -I ./api     --go_out ./api --go_opt paths=source_relative \
+// --go-grpc_out ./api --go-grpc_opt paths=source_relative  \
+// --grpc-gateway_out ./api --grpc-gateway_opt paths=source_relative \
+// ./api/order.proto
+//
+// Note:
+// Adding http.proto and annotations.proto files in google/api directory is compulsory to provide
+// code execution. These files ensure "understanding" my proto file (order.proto) about how to process http request
+// i.e. this is special type of contract for gRPC-gateway.
 type OrderServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
