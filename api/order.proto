@@ -18,6 +18,16 @@ Proto generation command:
   code execution. These files ensure "understanding" my proto file (order.proto) about how to process http request 
   i.e. this is special type of contract for gRPC-gateway.
 */
+
+/*
+For generation swagger documentation install required module:
+`go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest`
+
+Then run the following command:
+protoc -I ./api --openapiv2_out=./api order.proto
+
+Прикольно, что у меня пол доки на англе и пол доки на русском :)
+*/
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
     option (google.api.http) = {
