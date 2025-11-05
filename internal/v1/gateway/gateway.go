@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	pb "orderService/api"
+	"orderService/pkg/swagger"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/http2"
@@ -29,9 +30,8 @@ func ProvideHTTP(httpEndpoint, grpcEndpoint string, grpcServer *grpc.Server) *ht
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/", gwmux)
-	//Добавляется обработчик сваггера, с которым нужно разобраться
-	// mux.HandleFunc("/swagger/", swagger.ServeSwaggerFile)
-	// swagger.ServeSwaggerUI(mux)
+	mux.HandleFunc("/swagger.json", swagger.ServeSwaggerFile)
+	swagger.ServeSwaggerUI(mux)
 	log.Println(httpEndpoint + " HTTP.Listing whth TLS and token...")
 	return &http.Server{
 		Addr:    httpEndpoint,

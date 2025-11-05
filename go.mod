@@ -5,6 +5,7 @@ go 1.24.0
 toolchain go1.24.9
 
 require (
+	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/ilyakaznacheev/cleanenv v1.5.0

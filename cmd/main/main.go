@@ -73,7 +73,7 @@ func main() {
 
 	go func() {
 		<-ctx.Done()
-		time.Sleep(10 * time.Second)
+		time.Sleep(2 * time.Second)
 		log.Println("Shutting down server...")
 		httpServer.Shutdown(context.Background())
 	}()

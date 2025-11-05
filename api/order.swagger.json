@@ -9,7 +9,7 @@
       "name": "OrderService"
     }
   ],
-  "consumes": [
+  "consumes": [ 
     "application/json"
   ],
   "produces": [
