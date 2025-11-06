@@ -1,0 +1,10 @@
+.dockerignore
+.gitignore
+.env.example
+Dockerfile
+Makefile
+# Folders
+.git/
+.github/
+.env
+.git/
