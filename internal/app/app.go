@@ -21,6 +21,8 @@ import (
 
 	mws "orderService/internal/v1/middlewares"
 
+	"orderService/pkg/repository/postgres/migrations"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -36,7 +38,11 @@ func New(cfg *config.Config) (*App, error) {
 	// Инициализация логгера
 	cl := logger.NewCurrentLogger(zaplogger.NewLoggerAdapter(cfg.Environment))
 	// Инициализация БД и репозитория
-	repo := repository.NewOrderService(postgres.New(cfg.PostgreSQL))
+	Store := postgres.New(cfg.PostgreSQL)
+	repo := repository.NewOrderService(Store)
+	//Запуск миграций
+	migr := Store.GetGorm()
+	migrations.Migrate(migr)
 	// Создание gRPC сервера с middleware
 	grpcServer := newGRPCServer(cl)
 	// Регистрация сервисов

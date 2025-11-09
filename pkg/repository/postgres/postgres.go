@@ -20,6 +20,10 @@ type Store struct {
 	db *gorm.DB
 }
 
+func (s *Store) GetGorm() *gorm.DB {
+	return s.db
+}
+
 func New(cfg config.PostgresConfig) *Store {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
