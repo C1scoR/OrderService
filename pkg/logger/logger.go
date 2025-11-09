@@ -50,3 +50,17 @@ func WithRequestID(ctx context.Context, requestID string) context.Context {
 func WithTraceID(ctx context.Context, traceID string) context.Context {
 	return context.WithValue(ctx, loggerTraceIDKey, traceID)
 }
+
+// Ключ для получения логгера из контекста:
+type ctxKey struct{}
+
+// Функция, которая запихивает логгер в контекст
+func WithLogger(ctx context.Context, logger *CurrentLogger) context.Context {
+	return context.WithValue(ctx, ctxKey{}, logger)
+}
+
+// Функция, которая достаёт логгер из контекста
+func LoggerFromContext(ctx context.Context) *CurrentLogger {
+	logger, _ := ctx.Value(ctxKey{}).(*CurrentLogger)
+	return logger
+}

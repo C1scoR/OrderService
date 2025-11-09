@@ -25,7 +25,7 @@ func NewLoggerAdapter(env string) *ZapAdapter {
 	if env == "development" {
 		loggerCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
-	logger, err := loggerCfg.Build()
+	logger, err := loggerCfg.Build(zap.AddCaller())
 	defer logger.Sync()
 	if err != nil {
 		log.Fatalf("failed to create logger: %v", err)

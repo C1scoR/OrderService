@@ -1,30 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"log"
-	"net"
-	"net/http"
-	pb "orderService/api"
+	"orderService/internal/app"
 	"orderService/internal/config"
-	v1 "orderService/internal/v1"
-	"orderService/pkg/logger"
-	"orderService/pkg/logger/zaplogger"
-	"orderService/pkg/repository"
-	"orderService/pkg/repository/mapstorage"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	//"orderService/internal/v1/gateway"
-	"orderService/internal/v1/gateway"
-	mws "orderService/internal/v1/middlewares"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -32,61 +13,13 @@ func main() {
 	if err != nil {
 		log.Printf("Не удалось спарсить конфиг: %v", errors.Unwrap(err))
 	}
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", cfg.Port))
+	application, err := app.New(cfg)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("Не удалось создать приложение: %v", err)
 	}
-	/*
-		Далее просто передаём cl как currentLogger. Если захоти его поменять на другой, то просто в
-		функции ниже нужно поменять NewLoggerAdapter от другого логгера и всё :)
-	*/
-	cl := logger.NewCurrentLogger(zaplogger.NewLoggerAdapter(cfg.Environment))
-	/*
-		type UnaryServerInterceptor func(ctx context.Context, req any, info *UnaryServerInfo, handler UnaryHandler) (resp any, err error)
-	*/
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(
-			mws.UnaryServerInterceptorLogger(*cl),
-		),
-	)
-	repo := repository.NewOrderService(mapstorage.NewMapStorage())
-	pb.RegisterOrderServiceServer(grpcServer, v1.NewServer(*repo))
-	reflection.Register(grpcServer)
-	httpPort := cfg.Port + 1
-	httpEndpoint := fmt.Sprintf("0.0.0.0:%d", httpPort)
-	grpcEndpoint := fmt.Sprintf("0.0.0.0:%d", cfg.Port)
-	httpServer := gateway.ProvideHTTP(httpEndpoint, grpcEndpoint, grpcServer)
-	go func() {
-		log.Printf("gRPC server is running on localhost:%d", lis.Addr())
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("main/grpcServer.Serve не удалось запустить gRPC сервер: %v", err)
-		}
-	}()
-
-	httpLis, err := net.Listen("tcp", httpEndpoint)
-	if err != nil {
-		log.Fatalf("failed to listen for HTTP gateway: %v", err)
+	if err := application.Run(); err != nil {
+		log.Fatalf("Ошибка при запуске приложения: %v", err)
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	go func() {
-		<-ctx.Done()
-		time.Sleep(2 * time.Second)
-		log.Println("Shutting down server...")
-		httpServer.Shutdown(context.Background())
-	}()
-
-	if err := httpServer.Serve(httpLis); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("HTTP server error: %v", err)
-	}
-
-	log.Println("Server exited properly")
-
-	// // Keep the main function alive until an interrupt signal is received
-	// select {}
-
 }
 
 // func newGateway(ctx context.Context, conn *grpc.ClientConn, opts []gwruntime.ServeMuxOption) (http.Handler, error) {

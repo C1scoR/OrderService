@@ -34,7 +34,7 @@ func NewMapStorage() *mapStorage {
 
 func (ms *mapStorage) Create(ctx context.Context, order models.Order) (string, error) {
 	id := uuid.New().String()
-	order.Id = id
+	order.ID = id
 	ms.mu.Lock()
 	ms.m[id] = order
 	ms.mu.Unlock()
@@ -53,13 +53,13 @@ func (ms *mapStorage) GetByID(ctx context.Context, id string) (models.Order, err
 
 func (ms *mapStorage) Update(ctx context.Context, order models.Order) error {
 	ms.mu.RLock()
-	_, ok := ms.m[order.Id]
+	_, ok := ms.m[order.ID]
 	ms.mu.RUnlock()
 	if !ok {
-		return fmt.Errorf("Update: order with id %s not found", order.Id)
+		return fmt.Errorf("Update: order with id %s not found", order.ID)
 	}
 	ms.mu.Lock()
-	ms.m[order.Id] = order
+	ms.m[order.ID] = order
 	ms.mu.Unlock()
 	return nil
 }

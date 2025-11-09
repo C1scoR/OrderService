@@ -77,7 +77,7 @@ func (s *OrderServiceServer) GetOrder(ctx context.Context, orderRequest *pb.GetO
 		return nil, status.Errorf(codes.NotFound, "GetOrder/GetByID error getting an order: %v", err)
 	}
 	responseOrder := pb.Order{
-		Id:       order.Id,
+		Id:       order.ID,
 		Item:     order.Item,
 		Quantity: order.Quantity,
 	}
@@ -99,7 +99,7 @@ func (s *OrderServiceServer) GetOrder(ctx context.Context, orderRequest *pb.GetO
 */
 func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrderRequest) (*pb.UpdateOrderResponse, error) {
 	order := models.Order{
-		Id:       uor.GetId(),
+		ID:       uor.GetId(),
 		Item:     uor.GetItem(),
 		Quantity: uor.GetQuantity(),
 	}
@@ -110,7 +110,7 @@ func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrde
 
 	return &pb.UpdateOrderResponse{
 		Order: &pb.Order{
-			Id:       order.Id,
+			Id:       order.ID,
 			Item:     order.Item,
 			Quantity: order.Quantity,
 		},
@@ -142,7 +142,7 @@ func (s *OrderServiceServer) ListOrders(ctx context.Context, lor *pb.ListOrdersR
 	var responseOrders []*pb.Order
 	for _, order := range orders {
 		responseOrders = append(responseOrders, &pb.Order{
-			Id:       order.Id,
+			Id:       order.ID,
 			Item:     order.Item,
 			Quantity: order.Quantity,
 		})

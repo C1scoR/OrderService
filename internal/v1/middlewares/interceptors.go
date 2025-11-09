@@ -11,7 +11,7 @@ import (
 )
 
 // deprecated: UnaryServerInterceptorLogger - интерцептор для логирования входящих запросов, а также ответов сервера
-func UnaryServerInterceptorLogger(cl logger.CurrentLogger) grpc.UnaryServerInterceptor {
+func UnaryServerInterceptorLogger(cl *logger.CurrentLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 		//получаем reqID из контекста запроса клиента
 		reqID, ok := logger.RequestID(ctx)
@@ -25,6 +25,8 @@ func UnaryServerInterceptorLogger(cl logger.CurrentLogger) grpc.UnaryServerInter
 		}
 		//Логируем входящий запрос
 		cl.Info(ctx, "Incoming RPC", zap.String("method", info.FullMethod), zap.Any("request", req), zap.String("request_id", reqID))
+		//Передача логгера дальше в контекст:
+		logger.WithLogger(ctx, cl)
 		m, err := handler(ctx, req)
 
 		if err != nil {

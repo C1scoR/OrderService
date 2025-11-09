@@ -1,0 +1,17 @@
+services:
+  postgresdb:
+    image: postgres:15
+    container_name: postgresdb
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "50000:5432"
+    networks:
+      - pgnetwork
+
+networks:
+  pgnetwork:
+    driver: bridge
