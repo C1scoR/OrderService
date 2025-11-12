@@ -12,8 +12,6 @@ import (
 	"orderService/internal/v1/gateway"
 	"orderService/pkg/logger"
 	"orderService/pkg/logger/zaplogger"
-	"orderService/pkg/repository"
-	"orderService/pkg/repository/postgres"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,6 +19,7 @@ import (
 
 	mws "orderService/internal/v1/middlewares"
 
+	"orderService/pkg/repository/postgres"
 	"orderService/pkg/repository/postgres/migrations"
 
 	"google.golang.org/grpc"
@@ -38,15 +37,16 @@ func New(cfg *config.Config) (*App, error) {
 	// Инициализация логгера
 	cl := logger.NewCurrentLogger(zaplogger.NewLoggerAdapter(cfg.Environment))
 	// Инициализация БД и репозитория
-	Store := postgres.New(cfg.PostgreSQL)
-	repo := repository.NewOrderService(Store)
+	//Нужно сделать чтобы репозиторий можно было инициализировать 2-мя способами:
+	//msrepo := mysql.NewRepository(cfg.MySQL)
+	Store := postgres.New(&cfg.PostgreSQL)
+	pgRepo := postgres.NewRepository(Store)
 	//Запуск миграций
-	migr := Store.GetGorm()
-	migrations.Migrate(migr)
+	migrations.Migrate(Store)
 	// Создание gRPC сервера с middleware
 	grpcServer := newGRPCServer(cl)
 	// Регистрация сервисов
-	pb.RegisterOrderServiceServer(grpcServer, v1.NewServer(*repo))
+	pb.RegisterOrderServiceServer(grpcServer, v1.NewServer(pgRepo))
 	reflection.Register(grpcServer)
 	httpServer := newHTTPServer(cfg, grpcServer)
 

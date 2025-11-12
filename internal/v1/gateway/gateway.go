@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	pb "orderService/api"
+	v1 "orderService/internal/v1"
 	"orderService/pkg/swagger"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -31,6 +32,7 @@ func ProvideHTTP(httpEndpoint, grpcEndpoint string, grpcServer *grpc.Server) *ht
 	mux := http.NewServeMux()
 	mux.Handle("/", gwmux)
 	mux.HandleFunc("/swagger.json", swagger.ServeSwaggerFile)
+	mux.HandleFunc("/health", v1.HealthCheck)
 	swagger.ServeSwaggerUI(mux)
 	log.Println(httpEndpoint + " HTTP.Listing whth TLS and token...")
 	return &http.Server{

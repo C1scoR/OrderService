@@ -10,6 +10,9 @@ type Order struct {
 	Item     string `gorm:"unique"`
 	Quantity int32
 }
+type User struct {
+	ID int `gorm:"primaryKey"` //надо донастроить, что нужный мне тип - это int
+}
 
 // BeforeCreate — хук, вызываемый GORM до создания записи
 func (m *Order) BeforeCreate(tx *gorm.DB) (err error) {

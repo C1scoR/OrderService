@@ -18,7 +18,7 @@ type Config struct {
 
 type PostgresConfig struct {
 	Host     string `env:"HOST" env-default:"localhost"`
-	Port     int    `env:"PORT" env-default:"50000"`
+	Port     int    `env:"PORT" env-default:"5432"`
 	User     string `env:"USER" env-default:"postgres"`
 	Password string `env:"PASSWORD" env-default:"postgres"`
 	Database string `env:"DATABASE" env-default:"postgres"`

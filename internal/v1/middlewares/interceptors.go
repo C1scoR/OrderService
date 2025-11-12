@@ -26,7 +26,7 @@ func UnaryServerInterceptorLogger(cl *logger.CurrentLogger) grpc.UnaryServerInte
 		//Логируем входящий запрос
 		cl.Info(ctx, "Incoming RPC", zap.String("method", info.FullMethod), zap.Any("request", req), zap.String("request_id", reqID))
 		//Передача логгера дальше в контекст:
-		logger.WithLogger(ctx, cl)
+		ctx = logger.WithLogger(ctx, cl)
 		m, err := handler(ctx, req)
 
 		if err != nil {

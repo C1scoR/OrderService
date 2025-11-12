@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"fmt"
+	"net/http"
 	pb "orderService/api"
 	"orderService/models"
 	"orderService/pkg/repository"
@@ -26,15 +27,15 @@ import (
 //Она позволяет добавить свою реализацию методов для gPRC сервера. Для этого создав её экземпляр через func NewServer()
 //мы регистрируем обработчики (т.е. методы которые содержит эта структура) через функцию .proto файла: RegisterOrderServiceServer()
 type OrderServiceServer struct {
-	pb.UnimplementedOrderServiceServer                         //inherited example with stubs for OrderServiceServer interface
-	OrdersRepository                   repository.OrderService // read-only after initialized
-	mu                                 sync.Mutex              // protect savedOrders
+	pb.UnimplementedOrderServiceServer                       //inherited example with stubs for OrderServiceServer interface
+	Repository                         repository.Repository // read-only after initialized
+	mu                                 sync.Mutex            // protect savedOrders
 }
 
 // NewServer это функция, которая создаёт экземпляр структуры OrderServiceServer.
 // Она принимает экземпляр хранилища repository.OrderService, которое мы будем использоват для хранения заказов.
-func NewServer(OrdersRepository repository.OrderService) *OrderServiceServer {
-	s := &OrderServiceServer{OrdersRepository: OrdersRepository}
+func NewServer(Repository repository.Repository) *OrderServiceServer {
+	s := &OrderServiceServer{Repository: Repository}
 	return s
 }
 
@@ -55,7 +56,7 @@ func (s *OrderServiceServer) CreateOrder(ctx context.Context, orderRequest *pb.C
 		Item:     orderRequest.GetItem(),
 		Quantity: orderRequest.GetQuantity(),
 	}
-	id, err := s.OrdersRepository.Create(ctx, order)
+	id, err := s.Repository.Order().Create(ctx, order)
 	if err != nil {
 		return nil, fmt.Errorf("CreateOrder/Create error creating an order: %v", err)
 	}
@@ -72,7 +73,7 @@ message GetOrderResponse {
 */
 
 func (s *OrderServiceServer) GetOrder(ctx context.Context, orderRequest *pb.GetOrderRequest) (*pb.GetOrderResponse, error) {
-	order, err := s.OrdersRepository.GetByID(ctx, orderRequest.GetId())
+	order, err := s.Repository.Order().GetByID(ctx, orderRequest.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "GetOrder/GetByID error getting an order: %v", err)
 	}
@@ -103,7 +104,7 @@ func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrde
 		Item:     uor.GetItem(),
 		Quantity: uor.GetQuantity(),
 	}
-	err := s.OrdersRepository.Update(ctx, order)
+	err := s.Repository.Order().Update(ctx, order)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "UpdateOrder/Update error updating an order: %v", err)
 	}
@@ -127,7 +128,7 @@ func (s *OrderServiceServer) UpdateOrder(ctx context.Context, uor *pb.UpdateOrde
 	}
 */
 func (s *OrderServiceServer) DeleteOrder(ctx context.Context, dor *pb.DeleteOrderRequest) (*pb.DeleteOrderResponse, error) {
-	err := s.OrdersRepository.Delete(ctx, dor.GetId())
+	err := s.Repository.Order().Delete(ctx, dor.GetId())
 	if err != nil {
 		return &pb.DeleteOrderResponse{Success: false}, fmt.Errorf("DeleteOrder/Delete error deleting an order: %v", err)
 	}
@@ -135,7 +136,7 @@ func (s *OrderServiceServer) DeleteOrder(ctx context.Context, dor *pb.DeleteOrde
 }
 
 func (s *OrderServiceServer) ListOrders(ctx context.Context, lor *pb.ListOrdersRequest) (*pb.ListOrdersResponse, error) {
-	orders, err := s.OrdersRepository.List(ctx)
+	orders, err := s.Repository.Order().List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("ListOrders/List error getting all orders: %v", err)
 	}
@@ -148,4 +149,8 @@ func (s *OrderServiceServer) ListOrders(ctx context.Context, lor *pb.ListOrdersR
 		})
 	}
 	return &pb.ListOrdersResponse{Orders: responseOrders}, nil
+}
+
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "ok!", http.StatusOK)
 }

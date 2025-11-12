@@ -4,27 +4,36 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"orderService/internal/config"
+	"orderService/pkg/repository"
 	"time"
 
-	"orderService/internal/config"
-	"orderService/models"
-	"orderService/pkg/logger"
-
-	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// urlExample := "postgres://username:password@localhost:5432/database_name"
-type Store struct {
+type repo struct {
 	db *gorm.DB
 }
 
-func (s *Store) GetGorm() *gorm.DB {
+func NewRepository(db *gorm.DB) repository.Repository {
+	return &repo{
+		db: db,
+	}
+}
+
+func (s *repo) GetGorm() *gorm.DB {
 	return s.db
 }
 
-func New(cfg config.PostgresConfig) *Store {
+func (r *repo) Order() repository.OrderRepository {
+	return &orderRepo{db: r.db}
+}
+func (r *repo) User() repository.UserRepository {
+	return &userRepo{db: r.db}
+}
+
+func New(cfg *config.PostgresConfig) *gorm.DB {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
 	defer cancel()
@@ -44,63 +53,5 @@ func New(cfg config.PostgresConfig) *Store {
 	if err != nil {
 		log.Fatalf("Не удаётся преобразовать sql config в gorm config %v", err)
 	}
-	return &Store{db: gormDB}
-}
-
-func (ms *Store) Create(ctx context.Context, order models.Order) (string, error) {
-	cl := logger.LoggerFromContext(ctx)
-	result := gorm.WithResult()
-	err := gorm.G[models.Order](ms.db, result).Create(ctx, &order)
-	if err != nil {
-		cl.Error(ctx, "Ошибка при создании заказа в БД ", zap.Error(err))
-		return "", err
-	}
-	return order.ID, nil
-}
-
-func (ms *Store) GetByID(ctx context.Context, id string) (models.Order, error) {
-	cl := logger.LoggerFromContext(ctx)
-
-	// Using numeric primary key
-	order, err := gorm.G[models.Order](ms.db).Where("id = ?", id).First(ctx)
-	if err != nil {
-		cl.Error(ctx, "Ошибка при создании заказа в БД ", zap.Error(err))
-		return models.Order{}, err
-	}
-	return order, nil
-}
-
-func (ms *Store) Update(ctx context.Context, order models.Order) error {
-	cl := logger.LoggerFromContext(ctx)
-	_, err := gorm.G[models.Order](ms.db).Where("id = ?", order.ID).Updates(ctx,
-		models.Order{
-			Item:     order.Item,
-			Quantity: order.Quantity,
-		})
-	if err != nil {
-		cl.Error(ctx, "Ошибка при создании заказа в БД ", zap.Error(err))
-		return err
-	}
-	return err
-}
-
-func (ms *Store) Delete(ctx context.Context, id string) error {
-	cl := logger.LoggerFromContext(ctx)
-	_, err := gorm.G[models.Order](ms.db).Where("id = ?", 10).Delete(ctx)
-	if err != nil {
-		cl.Error(ctx, "Ошибка при создании заказа в БД ", zap.Error(err))
-		return err
-	}
-	return err
-}
-
-func (ms *Store) List(ctx context.Context) ([]models.Order, error) {
-	cl := logger.LoggerFromContext(ctx)
-	orders := make([]models.Order, 0, 1)
-	result := ms.db.Find(&orders)
-	if result.Error != nil {
-		cl.Error(ctx, "Ошибка при создании заказа в БД ", zap.Error(result.Error))
-		return []models.Order{}, result.Error
-	}
-	return orders, nil
+	return gormDB
 }
