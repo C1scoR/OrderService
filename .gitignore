@@ -9,17 +9,6 @@ bin/
 *.dll
 *.so
 *.dylib
-
-#Ненужная абсолютно в образе документация:
-*.md
-README.md
-LICENSE
-
-#Docker 
-Dockerfile
-docker-compose.yaml
-.dockerignore
-
 #Конфиг будет скопирован явно через docker-compose.yaml типа ${PORT} и тд.
 config/.env.local
 # Логи: 
