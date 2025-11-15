@@ -33,8 +33,9 @@ services:
 # Configuration for building the docker image for the service
     build:
       context: . # Use an image built from the specified dockerfile in the current directory.
-    container_name: grpcgateway
-    image: grpcgateway:latest
+      target: orderservice
+    container_name: orderservice_app
+    image: orderservice:latest
     depends_on:
       postgresdb:
         condition: service_healthy
