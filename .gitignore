@@ -1,3 +1,30 @@
+# файл с конфигурацией проекта .vscode
+.vscode
+# Ниже временные файлы Vim, которые могут попасть в сборку, что нам абсолютно не нужно:
+.swp 
+.swo
+# Ниже приведены файлы, которые создаются в основном или скачиваются во время сборки образа:
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+#Ненужная абсолютно в образе документация:
+*.md
+README.md
+LICENSE
+
+#Docker 
+Dockerfile
+docker-compose.yaml
+.dockerignore
+
+#Конфиг будет скопирован явно через docker-compose.yaml типа ${PORT} и тд.
+config/.env.local
+# Логи: 
+.log
+
 .env
 .gitignore
 .exe
