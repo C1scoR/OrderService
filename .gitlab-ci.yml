@@ -7,12 +7,13 @@ lint:
   stage: lint
   image: golangci/golangci-lint:v2.6.2-alpine
   script: 
-    - golangci-lint run -v --timeout 1m
+    - golangci-lint run -v --timeout 2m
   allow_failure: false 
-  timeout: 1m
+  timeout: 2m
 
 test: 
   stage: test
+  image: golang:1.25-alpine
   before_script:
     - apk add --no-cache git make gcc musl-dev
   script:
@@ -20,11 +21,10 @@ test:
     - go test -v -race ./... 
   artifacts:
     expire_in: 7 days
-  allow_failure: false
 
 build:docker:
   image: 
-    name: gcr.io/kaniko-project/executor:v.1.23.2-debug
+    name: gcr.io/kaniko-project/executor:v1.24.0-debug
     entrypoint: [""]
   before_script: 
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(printf "%s:%s" "{CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > kaniko/.docker/config.json
