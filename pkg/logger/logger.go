@@ -10,9 +10,12 @@ type Logger interface {
 	Error(ctx context.Context, msg string, fields ...any)
 }
 
+type loggerRequestID string
+type loggerTraceID string
+
 const (
-	loggerRequestIDKey = "x-request_id"
-	loggerTraceIDKey   = "x-trace_id"
+	loggerRequestIDKey loggerRequestID = "x-request_id"
+	loggerTraceIDKey   loggerTraceID   = "x-trace_id"
 )
 
 type CurrentLogger struct {

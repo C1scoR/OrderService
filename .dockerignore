@@ -19,6 +19,7 @@ LICENSE
 Dockerfile
 docker-compose.yaml
 .dockerignore
+Makefile
 
 #Конфиг будет скопирован явно через docker-compose.yaml типа ${PORT} и тд.
 config/.env.local
@@ -27,8 +28,7 @@ config/.env.local
 
 .gitignore
 .env.example
-Dockerfile
-Makefile
+
 # Folders
 .git/
 .github/

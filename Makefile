@@ -5,6 +5,9 @@ PROTO_FILES = $(wildcard $(PROTO_DIR)/*.proto)
 
 SERVER = main.exe
 
+lint: 
+	golangci-lint run -v
+
 # Генерация кода gRPC и grpc-gateway
 gen: $(PROTO_FILES)
 	protoc -I $(PROTO_DIR) --go_out $(OUT_DIR) --go_opt paths=source_relative \

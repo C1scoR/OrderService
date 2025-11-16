@@ -13,7 +13,7 @@ func Migrate(db *gorm.DB) {
 		log.Printf("Something went wrong during the migrations: %v", err)
 	}
 	has := db.Migrator().HasTable(&models.Order{})
-	if has == false && err == nil {
+	if !has && err == nil {
 		log.Println("The table ORDERS was not created throughout migrations")
 	}
 	//Напишем тестовые миграции

@@ -10,14 +10,14 @@ import (
 )
 
 // Cоздаём адаптер, чтобы можно было реализовать интерфейс Logger
-type ZapAdapter struct {
+type zapAdapter struct {
 	z *zap.Logger
 }
 
 // Создаём zapLogger, аналогичную функцию в целом можно написать
 // и для любого другого логгера и также её настроить. В этом
 // и заключается преимущество использования адаптера и интерфейсов
-func NewLoggerAdapter(env string) *ZapAdapter {
+func NewLoggerAdapter(env string) *zapAdapter {
 	loggerCfg := zap.NewProductionConfig()
 	loggerCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	loggerCfg.DisableStacktrace = true
@@ -31,7 +31,7 @@ func NewLoggerAdapter(env string) *ZapAdapter {
 		log.Fatalf("failed to create logger: %v", err)
 	}
 
-	lo := ZapAdapter{z: logger}
+	lo := zapAdapter{z: logger}
 	return &lo
 }
 
@@ -44,7 +44,7 @@ func enrichZapFields(ctx context.Context, fields []zap.Field) []zap.Field {
 	return append(fields, zap.String("RequestID", id))
 }
 
-func (l *ZapAdapter) toZapFields(args ...any) []zap.Field {
+func (l *zapAdapter) toZapFields(args ...any) []zap.Field {
 	// если аргументов нечётное количество — логируем и обрезаем последний
 	if len(args)%2 != 0 {
 		//l.z.Warn("toZapFields called with odd number of arguments", zap.Int("len", len(args)))
@@ -75,16 +75,16 @@ func (l *ZapAdapter) toZapFields(args ...any) []zap.Field {
 	return zapFields
 }
 
-func (l *ZapAdapter) Info(ctx context.Context, msg string, fields ...any) {
+func (l *zapAdapter) Info(ctx context.Context, msg string, fields ...any) {
 	zapFields := l.toZapFields(fields...)
 	l.z.Info(msg, enrichZapFields(ctx, zapFields)...)
 }
 
-func (l *ZapAdapter) Debug(ctx context.Context, msg string, fields ...any) {
+func (l *zapAdapter) Debug(ctx context.Context, msg string, fields ...any) {
 	zapFields := l.toZapFields(fields...)
 	l.z.Debug(msg, enrichZapFields(ctx, zapFields)...)
 }
-func (l *ZapAdapter) Error(ctx context.Context, msg string, fields ...any) {
+func (l *zapAdapter) Error(ctx context.Context, msg string, fields ...any) {
 	zapFields := l.toZapFields(fields...)
 	l.z.Error(msg, enrichZapFields(ctx, zapFields)...)
 }

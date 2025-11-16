@@ -7,7 +7,6 @@ import (
 	pb "orderService/api"
 	"orderService/models"
 	"orderService/pkg/repository"
-	"sync"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -23,13 +22,14 @@ import (
 		mustEmbedUnimplementedOrderServiceServer()
 	}
 */
-//OrderServiceServer - это структура, которая имеет все методы для реализации интерфейса OrderServiceServer interface;
-//Она позволяет добавить свою реализацию методов для gPRC сервера. Для этого создав её экземпляр через func NewServer()
-//мы регистрируем обработчики (т.е. методы которые содержит эта структура) через функцию .proto файла: RegisterOrderServiceServer()
+
+// OrderServiceServer - это структура, которая имеет все методы для реализации интерфейса OrderServiceServer interface;
+// Она позволяет добавить свою реализацию методов для gPRC сервера. Для этого создав её экземпляр через func NewServer()
+// мы регистрируем обработчики (т.е. методы которые содержит эта структура) через функцию .proto файла: RegisterOrderServiceServer()
 type OrderServiceServer struct {
 	pb.UnimplementedOrderServiceServer                       //inherited example with stubs for OrderServiceServer interface
 	Repository                         repository.Repository // read-only after initialized
-	mu                                 sync.Mutex            // protect savedOrders
+	// mu                                 sync.Mutex            // protect savedOrders
 }
 
 // NewServer это функция, которая создаёт экземпляр структуры OrderServiceServer.
@@ -152,5 +152,5 @@ func (s *OrderServiceServer) ListOrders(ctx context.Context, lor *pb.ListOrdersR
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "ok!", http.StatusOK)
+	fmt.Fprint(w, "ok!", http.StatusOK)
 }
