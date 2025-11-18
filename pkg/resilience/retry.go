@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-//Kek lol
-
 const (
 	DefaultMaxElapsedTime = 2 * time.Minute
 	DefaultMaxRetries     = 25
@@ -67,11 +65,18 @@ func WithMaxElapsedTime(maxElapsedTime time.Duration) RetryOption {
 	}
 }
 
+func WithContext(ctx context.Context) RetryOption {
+	return func(args *retryOptions) {
+		args.ctx = ctx
+	}
+}
+
 func Retry(operation func() error, opts ...RetryOption) error {
 	args := &retryOptions{
 		backoff:        NewBackoff(),
 		maxRetries:     DefaultMaxRetries,
 		maxElapsedTime: DefaultMaxElapsedTime,
+		ctx:            context.TODO(),
 	}
 
 	for _, opt := range opts {
